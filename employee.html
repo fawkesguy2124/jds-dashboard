@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JDS — Employee Portal</title>
+<style>
+:root{--bg:#f0f2f5;--card:#fff;--border:#e2e8f0;--text:#1a202c;--text2:#4a5568;--text3:#94a3b8;--blue:#2563eb;--blue2:#1d4ed8;--green:#16a34a;--amber:#d97706;--red:#dc2626;--r:8px;--r2:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px}
+button,select,input,textarea{font-family:inherit;font-size:13px}
+.header{background:var(--blue);color:#fff;padding:0 1.25rem;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(37,99,235,.25)}
+.hlogo{display:flex;align-items:center;gap:10px}
+.hbox{width:30px;height:30px;background:rgba(255,255,255,.2);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+.htitle{font-size:14px;font-weight:700}
+.hsub{font-size:10px;opacity:.7}
+.who-bar{background:#fff;border-bottom:1px solid var(--border);padding:.6rem 1.25rem;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text2);flex-wrap:wrap}
+.who-sel{border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:13px;background:#fff;cursor:pointer}
+.who-sel:focus{outline:none;border-color:var(--blue)}
+.who-lbl{font-weight:700;color:var(--blue)}
+.tabs{background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 1.25rem;overflow-x:auto}
+.tab{padding:12px 18px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--blue)}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:700}
+.wrap{max-width:860px;margin:0 auto;padding:1.25rem}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;margin-bottom:1rem}
+.ch{padding:.8rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:14px;font-weight:600}
+.cb{padding:1rem}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:.75rem}
+.fg label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.04em}
+.fg input,.fg select,.fg textarea{border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;width:100%;background:#fff;color:var(--text);transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fg textarea{resize:vertical;min-height:65px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:580px){.fgrid{grid-template-columns:1fr}}
+.fg.full{grid-column:1/-1}
+.sec-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;grid-column:1/-1;padding-top:6px;border-top:1px solid var(--border);margin-top:2px;margin-bottom:4px}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:0 14px;height:36px;font-size:13px;font-weight:600;border-radius:var(--r);cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text2);transition:all .12s;white-space:nowrap}
+.btn:hover{background:#f8fafc}
+.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn.primary:hover{background:var(--blue2)}
+.btn.success{background:var(--green);color:#fff;border-color:var(--green)}
+.btn.sm{height:28px;padding:0 10px;font-size:11px}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.b-red{background:#fee2e2;color:#991b1b}.b-amber{background:#fef3c7;color:#92400e}.b-green{background:#dcfce7;color:#166534}.b-blue{background:#dbeafe;color:#1e40af}.b-gray{background:#f1f5f9;color:#475569}
+.job-item{background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:1rem;margin-bottom:.6rem}
+.job-item.urgent{border-left:4px solid var(--red)}
+.job-item.high{border-left:4px solid var(--amber)}
+.job-item.normal{border-left:4px solid var(--blue)}
+.jid{font-size:15px;font-weight:800;color:var(--text)}
+.jclient{font-size:13px;color:var(--text2);margin-top:1px}
+.jmeta{font-size:11px;color:var(--text3);margin-top:2px;font-family:monospace}
+.sbar{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:11px;color:var(--text2)}
+.pbar{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;flex:1}
+.pfill{height:100%;border-radius:3px}
+.jstages{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:8px 0}
+.jst{background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:5px 7px}
+.jst-l{font-size:9px;color:var(--text3);text-transform:uppercase;font-weight:700;margin-bottom:1px}
+.jst-v{font-size:10px;font-weight:700}
+.s-done{color:#16a34a}.s-prog{color:#d97706}.s-pend{color:#94a3b8}
+.jfoot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)}
+.ubox{background:#eff6ff;border:1px solid #bfdbfe;border-radius:var(--r);padding:1rem;margin-top:8px;display:none}
+.ubox.open{display:block}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.stat{background:#fff;border:1px solid var(--border);border-radius:var(--r2);padding:.8rem;text-align:center}
+.sv{font-size:22px;font-weight:800;line-height:1}
+.sl{font-size:11px;color:var(--text3);margin-top:2px}
+.stat.blue .sv{color:var(--blue)}.stat.red .sv{color:var(--red)}.stat.green .sv{color:var(--green)}.stat.amber .sv{color:var(--amber)}
+.alert{display:flex;align-items:flex-start;gap:8px;padding:.75rem 1rem;border-radius:var(--r);margin-bottom:.65rem;font-size:13px;line-height:1.5}
+.alert.danger{background:#fee2e2;border-left:4px solid var(--red);color:#7f1d1d}
+.alert.warn{background:#fef3c7;border-left:4px solid var(--amber);color:#78350f}
+.alert.info{background:#dbeafe;border-left:4px solid var(--blue);color:#1e3a8a}
+.alert.success{background:#dcfce7;border-left:4px solid var(--green);color:#14532d}
+.loader{display:none;position:fixed;inset:0;background:rgba(255,255,255,.7);z-index:9000;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--green);color:#fff;padding:.75rem 1.1rem;border-radius:var(--r2);font-size:13px;font-weight:600;z-index:9999;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.error{background:var(--red)}
+.empty{text-align:center;padding:2.5rem;color:var(--text3);font-size:13px}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;padding:.5rem .75rem;border-bottom:1px solid var(--border);text-align:left;background:#f8fafc}
+.tbl td{padding:.55rem .75rem;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2)}
+.tbl tr:last-child td{border-bottom:none}
+.hint{font-size:11px;color:var(--text3);margin-top:2px}
+</style>
+</head>
+<body>
+<div id="loader" class="loader"><div class="spinner"></div><div style="font-size:13px;color:var(--text2)">Syncing with Google Sheets...</div></div>
+<div class="toast" id="toast"></div>
+
+<div class="header">
+  <div class="hlogo">
+    <div class="hbox">JD</div>
+    <div><div class="htitle">JDS Logistics — Employee Portal</div><div class="hsub">Updates sync to Jose's dashboard instantly</div></div>
+  </div>
+  <button class="btn" onclick="loadData()" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)">&#8635; Refresh</button>
+</div>
+
+<div class="who-bar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <div style="width:28px;height:28px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff" id="user-avatar">?</div>
+    <div>
+      <div style="font-weight:700;color:var(--text);font-size:13px" id="user-name">Not logged in</div>
+      <div style="font-size:10px;color:var(--text3)" id="user-email"></div>
+    </div>
+  </div>
+  <span style="margin-left:auto;font-size:11px;color:var(--text3)" id="last-sync"></span>
+  <button class="btn sm" onclick="refreshData()">&#8635; Refresh</button>
+  <button class="btn sm" onclick="logout()" style="color:var(--red)">Logout</button>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('myjobs',this)">My Active Jobs</div>
+  <div class="tab" onclick="showTab('addjob',this)">Add New Job</div>
+  <div class="tab" onclick="showTab('alljobs',this)">All Jobs</div>
+  <div class="tab" onclick="showTab('mylog',this)">My Activity</div>
+</div>
+
+<!-- MY JOBS -->
+<div id="tab-myjobs" class="wrap">
+  <div id="my-stats" class="stats-row"></div>
+  <div id="my-alerts"></div>
+  <div id="my-list"></div>
+</div>
+
+<!-- ADD JOB -->
+<div id="tab-addjob" class="wrap" style="display:none">
+  <div class="card">
+    <div class="ch"><div class="ct">Add New Shipment Job</div></div>
+    <div class="cb">
+      <div class="alert info">Select your name above before submitting. Your name will be recorded as the creator.</div>
+      <div class="fgrid">
+        <div class="fg"><label>Job Number *</label><input id="nj" placeholder="J-00001 / ALS-001"></div>
+        <div class="fg"><label>Client Name *</label><input id="nc" placeholder="PCM / Green Soul..."></div>
+        <div class="fg"><label>Type</label><select id="ntype"><option>Import</option><option>Export</option></select></div>
+        <div class="fg"><label>Mode</label><select id="nmode"><option>Sea FCL</option><option>Sea LCL</option><option>Air</option><option>BPT/MBPT</option></select></div>
+        <div class="fg"><label>BL / HBL Number</label><input id="nbl" placeholder="YSNBF26011551"></div>
+        <div class="fg"><label>BE / SB Number</label><input id="nbe" placeholder="8411685/01.04.2026"></div>
+        <div class="fg"><label>Container Number(s)</label><input id="ncn" placeholder="TGHU1234567"></div>
+        <div class="fg"><label>Vessel / Flight</label><input id="nvs" placeholder="MSC Elara / AI-131"></div>
+        <div class="fg"><label>ETA / ETD</label><input id="neta" type="date"></div>
+        <div class="fg"><label>CFS Name</label><input id="ncfs" placeholder="GDL / JWR / MIAL / MBPT"></div>
+        <div class="fg"><label>CFS Amount (Rs.)</label><input id="namt" type="number" placeholder="0"><div class="hint">Enter 0 if not known</div></div>
+        <div class="fg"><label>Delivery Destination</label><input id="ndest" placeholder="Chinchwad / Bhiwandi..."></div>
+        <div class="fg"><label>Assigned To</label><select id="nown"><option value="">-- select --</option><option>Akshyani</option><option>Kiran</option><option>Virendra</option><option>Anil</option><option>Mayur</option><option>Uphadhya</option><option>Trupti</option><option>Pramod</option><option>Samita</option><option>Jose</option></select></div>
+        <div class="fg"><label>Priority</label><select id="npr"><option value="normal">Normal</option><option value="high">High Priority</option><option value="urgent">URGENT</option></select></div>
+        <div class="fg"><label>HS Code</label><input id="nhs" placeholder="84295100"></div>
+        <div class="fg"><label>Goods Description</label><input id="ngd" placeholder="Concrete pump / LED lights..."></div>
+        <div class="sec-lbl">Customs Details</div>
+        <div class="fg"><label>RMS Status</label><select id="nrms"><option value="pend">Awaiting</option><option value="rms">RMS Pass</option><option value="apr">APR</option><option value="acl">ACL</option><option value="check">First Check</option><option value="hold">Hold</option></select></div>
+        <div class="fg"><label>BG Required?</label><select id="nbg"><option value="no">No</option><option value="yes">Yes</option><option value="100">100% BG</option></select></div>
+        <div class="fg"><label>Free Days</label><input id="nfd" type="number" value="14"></div>
+        <div class="fg"><label>Detention Risk</label><select id="ndem"><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option></select></div>
+        <div class="sec-lbl">Current Stage</div>
+        <div class="fg"><label>Current Stage *</label><select id="nst">
+          <option value="0">Job Created</option><option value="1">Documents Received</option><option value="2">BL Confirmation</option><option value="3">BE Filing</option><option value="4">RMS Processing</option><option value="5">Assessment</option><option value="6">Duty Payment</option><option value="7">Examination</option><option value="8">OOC Pending</option><option value="9">CFS Coordination</option><option value="10">Transporter Assigned</option><option value="11">Vehicle Out</option><option value="12">Delivery Pending</option><option value="13">POD Pending</option><option value="14">Billing Pending</option><option value="15">Payment Collection</option><option value="16">Job Closed</option>
+        </select></div>
+        <div class="fg"><label>Delay Reason</label><input id="ndl" placeholder="Query raised / BG pending..."></div>
+        <div class="fg full"><label>Notes / Remarks</label><textarea id="nnt" placeholder="Any important info for Jose..."></textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:1rem;border-top:1px solid var(--border);margin-top:.5rem">
+        <button class="btn" onclick="clearForm()">Clear</button>
+        <button class="btn primary" onclick="submitJob()">Submit Job to Google Sheets</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ALL JOBS -->
+<div id="tab-alljobs" class="wrap" style="display:none">
+  <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+    <input type="text" placeholder="Search..." id="asearch" oninput="renderAll()" style="border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;flex:1;min-width:160px">
+    <select id="astage" onchange="renderAll()" style="border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;background:#fff">
+      <option value="">All stages</option>
+    </select>
+  </div>
+  <div id="all-list"></div>
+</div>
+
+<!-- MY LOG -->
+<div id="tab-mylog" class="wrap" style="display:none">
+  <div id="log-list"></div>
+</div>
+
+<script src="api.js"></script>
+<script>
+let allJobs = [], allLog = [], currentUser = '', currentTab = 'myjobs';
+
+window.onload = async () => {
+  // Check session
+  const sess = sessionStorage.getItem('jds_user');
+  if (!sess) { window.location.href = 'index.html'; return; }
+  const user = JSON.parse(sess);
+  if (user.role === 'admin') { window.location.href = 'jose.html'; return; }
+  currentUser = user.name;
+  document.getElementById('user-name').textContent = user.name;
+  document.getElementById('user-email').textContent = user.email;
+  document.getElementById('user-avatar').textContent = user.name[0].toUpperCase();
+  populateStageFilter();
+  await loadData();
+};
+
+function logout() {
+  sessionStorage.removeItem('jds_user');
+  window.location.href = 'index.html';
+}
+async function refreshData() { await loadData(); }
+
+async function loadData() {
+  try {
+    [allJobs, allLog] = await Promise.all([API.getJobs(), API.getLog()]);
+    document.getElementById('last-sync').textContent = 'Synced: ' + new Date().toLocaleTimeString('en-IN');
+    renderCurrent();
+  } catch(e) {}
+}
+
+
+
+function showTab(tab, el) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+  ['myjobs','addjob','alljobs','mylog'].forEach(t => document.getElementById('tab-' + t).style.display = t === tab ? 'block' : 'none');
+  renderCurrent();
+}
+
+function renderCurrent() {
+  if (currentTab === 'myjobs') { renderStats(); renderMyJobs(); }
+  else if (currentTab === 'alljobs') renderAll();
+  else if (currentTab === 'mylog') renderLog();
+}
+
+function renderStats() {
+  const mine = currentUser ? allJobs.filter(j => j.assignedTo === currentUser) : allJobs;
+  const active = mine.filter(j => j.stage < 16).length;
+  const urg = mine.filter(j => j.priority === 'urgent' && j.stage < 16).length;
+  const done = mine.filter(j => j.stage >= 16).length;
+  const payPend = allJobs.filter(j => j.cfsStatus === 'approved' && j.payStatus === 'pending').length;
+  document.getElementById('my-stats').innerHTML = `
+    <div class="stat blue"><div class="sv">${active}</div><div class="sl">My Active Jobs</div></div>
+    <div class="stat red"><div class="sv">${urg}</div><div class="sl">Urgent</div></div>
+    <div class="stat green"><div class="sv">${done}</div><div class="sl">Completed</div></div>
+    <div class="stat amber"><div class="sv">${payPend}</div><div class="sl">Pay Queue (Jose)</div></div>`;
+}
+
+function renderMyJobs() {
+  if (!currentUser) { document.getElementById('my-alerts').innerHTML = ''; document.getElementById('my-list').innerHTML = '<div class="alert info">Please select your name above.</div>'; return; }
+  const mine = allJobs.filter(j => j.assignedTo === currentUser && j.stage < 16);
+  mine.sort((a,b) => { const p={urgent:0,high:1,normal:2}; return p[a.priority]-p[b.priority]||b.ts-a.ts; });
+
+  const alerts = [];
+  mine.forEach(j => {
+    if (j.priority === 'urgent') alerts.push({t:'danger', m:`<strong>${j.jobNo}</strong>: URGENT — ${j.delayReason || j.notes || ''}`});
+    if (j.detentionRisk === 'high') alerts.push({t:'warn', m:`<strong>${j.jobNo}</strong>: HIGH detention risk. Free days: ${j.freeDays}`});
+    if (daysOld(j) > 3) alerts.push({t:'info', m:`<strong>${j.jobNo}</strong>: No update in ${daysOld(j)} days.`});
+  });
+  document.getElementById('my-alerts').innerHTML = alerts.map(a => `<div class="alert ${a.t}">${a.m}</div>`).join('');
+  document.getElementById('my-list').innerHTML = mine.length ? mine.map(j => jCard(j, true)).join('') : '<div class="alert success">No active jobs assigned to you.</div>';
+}
+
+function renderAll() {
+  const q = (document.getElementById('asearch')||{}).value || '';
+  const st = (document.getElementById('astage')||{}).value || '';
+  let f = allJobs.filter(j => {
+    const mq = !q || [j.jobNo,j.client,j.be,j.bl,j.containers,j.destination,j.assignedTo].some(v => (v||'').toLowerCase().includes(q.toLowerCase()));
+    return mq && (st===''||j.stage==st);
+  });
+  f.sort((a,b)=>{ const p={urgent:0,high:1,normal:2}; return p[a.priority]-p[b.priority]||b.ts-a.ts; });
+  document.getElementById('all-list').innerHTML = f.length ? f.map(j => jCard(j, false)).join('') : '<div class="empty">No jobs found</div>';
+}
+
+function renderLog() {
+  const myLog = allLog.filter(a => !currentUser || a.by === currentUser);
+  document.getElementById('log-list').innerHTML = myLog.length ? `
+    <div class="card">
+      <div class="ch"><div class="ct">My Activity Log</div><span style="font-size:12px;color:var(--text3)">${myLog.length} entries</span></div>
+      <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Time</th><th>Job</th><th>Action</th><th>Note</th></tr></thead><tbody>
+      ${myLog.slice(0,100).map(a=>`<tr>
+        <td style="white-space:nowrap;font-size:11px;color:var(--text3)">${fmtDate(a.ts)}</td>
+        <td style="font-weight:700;color:var(--text)">${a.jobNo}</td>
+        <td style="color:#1d4ed8">${a.action}</td>
+        <td>${a.note||'—'}</td>
+      </tr>`).join('')}
+      </tbody></table></div>
+    </div>` : '<div class="empty">No activity logged yet.</div>';
+}
+
+function populateStageFilter() {
+  const sel = document.getElementById('astage');
+  STAGES.forEach((s,i) => { const o = document.createElement('option'); o.value=i; o.textContent=s; sel.appendChild(o); });
+}
+
+function jCard(j, showUpdate) {
+  const pct = Math.round((j.stage/16)*100);
+  const col = j.stage>=16?'#16a34a':j.stage>=10?'#2563eb':j.stage>=5?'#d97706':'#dc2626';
+  return `<div class="job-item ${j.priority}">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      <div><div class="jid">${j.jobNo} <span style="font-size:11px;font-weight:400;color:var(--text3)">· ${j.type}</span></div>
+      <div class="jclient">${j.client} · <span style="color:var(--text3)">${j.goods||'—'}</span></div>
+      <div class="jmeta">${j.be?'BE:'+j.be:''}${j.containers?' · '+j.containers:''}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+        ${pb(j.priority)} ${mb(j.mode)}
+        <span class="badge b-gray" style="font-size:10px">${j.assignedTo||'—'}</span>
+      </div>
+    </div>
+    <div class="sbar"><span style="white-space:nowrap;font-size:11px;flex-shrink:0">${STAGES[j.stage]||'—'}</span><div class="pbar"><div class="pfill" style="width:${pct}%;background:${col}"></div></div><span style="font-size:11px;color:var(--text3)">${pct}%</span></div>
+    <div class="jstages">
+      <div class="jst"><div class="jst-l">Customs</div><div class="jst-v ${j.stage>=8?'s-done':j.stage>=3?'s-prog':'s-pend'}">${j.stage>=8?'OOC Done':j.stage>=3?'In Progress':'Pending'}</div></div>
+      <div class="jst"><div class="jst-l">CFS</div><div class="jst-v ${j.cfsStatus==='paid'?'s-done':j.cfsStatus==='approved'?'s-prog':'s-pend'}">${j.cfsStatus==='paid'?'Paid':j.cfsStatus==='approved'?'Approved':j.cfsStatus==='na'?'N/A':'Pending'}</div></div>
+      <div class="jst"><div class="jst-l">Transport</div><div class="jst-v ${j.stage>=12?'s-done':j.stage>=10?'s-prog':'s-pend'}">${j.stage>=12?'En Route':j.stage>=10?'Arranged':'Not Yet'}</div></div>
+      <div class="jst"><div class="jst-l">Delivery</div><div class="jst-v ${j.stage>=16?'s-done':j.stage>=13?'s-prog':'s-pend'}">${j.stage>=16?'Complete':j.stage>=13?'POD':' Pending'}</div></div>
+    </div>
+    <div class="jfoot">
+      <span style="font-size:11px;color:var(--text3)">${j.cfs||'—'} · ${j.destination||'—'} · ${daysOld(j)}d${j.delayReason?' · <span style="color:#d97706">'+j.delayReason+'</span>':''}</span>
+      ${showUpdate ? `<button class="btn sm primary" onclick="toggleUpdate('${j.id}')">Update Stage</button>` : ''}
+    </div>
+    ${showUpdate ? `
+    <div class="ubox" id="ub-${j.id}">
+      <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:.75rem">Update: ${j.jobNo} — ${j.client}</div>
+      <div class="fgrid" style="gap:8px">
+        <div class="fg"><label>New Stage</label><select id="ust-${j.id}">${STAGES.map((s,i)=>`<option value="${i}" ${i==j.stage?'selected':''}>${s}</option>`).join('')}</select></div>
+        <div class="fg"><label>CFS Invoice</label><select id="ucfs-${j.id}">
+          <option value="pending" ${j.cfsStatus==='pending'?'selected':''}>Pending</option>
+          <option value="approved" ${j.cfsStatus==='approved'?'selected':''}>Invoice Approved</option>
+          <option value="paid" ${j.cfsStatus==='paid'?'selected':''}>Fully Paid</option>
+        </select></div>
+        <div class="fg"><label>Container / Vehicle No.</label><input id="ucn-${j.id}" value="${j.containers||''}" placeholder="Update container/vehicle..."></div>
+        <div class="fg"><label>Delay Reason</label><input id="udl-${j.id}" value="${j.delayReason||''}" placeholder="Any delay?"></div>
+        <div class="fg full"><label>Remarks for Jose</label><textarea id="unt-${j.id}" placeholder="What was done? Current situation?">${j.notes||''}</textarea></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:.75rem">
+        <button class="btn" onclick="toggleUpdate('${j.id}')">Cancel</button>
+        <button class="btn success" onclick="submitUpdate('${j.id}')">&#10003; Submit Update</button>
+      </div>
+    </div>` : ''}
+  </div>`;
+}
+
+function toggleUpdate(id) { document.getElementById('ub-'+id).classList.toggle('open'); }
+
+async function submitUpdate(id) {
+  if (!currentUser) { showToast('Select your name first!', true); return; }
+  const job = allJobs.find(j => j.id === id);
+  if (!job) return;
+  const ns = Number(document.getElementById('ust-'+id).value);
+  const note = document.getElementById('unt-'+id).value;
+  job.containers = document.getElementById('ucn-'+id).value;
+  job.delayReason = document.getElementById('udl-'+id).value;
+  job.notes = note;
+  job.cfsStatus = document.getElementById('ucfs-'+id).value;
+  job.updatedBy = currentUser;
+  job._isNew = false;
+  await API.updateStage(job, ns, currentUser, note);
+  showToast('Job ' + job.jobNo + ' updated! Jose can see it now.');
+  await loadData();
+}
+
+async function submitJob() {
+  if (!currentUser) { showToast('Select your name first!', true); return; }
+  const g = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  if (!g('nj') || !g('nc')) { showToast('Job number and client name required!', true); return; }
+  const job = {
+    id: 'j' + Date.now(), ts: Date.now(),
+    jobNo: g('nj'), client: g('nc'), type: g('ntype'), mode: g('nmode'),
+    bl: g('nbl'), be: g('nbe'), containers: g('ncn'), vessel: g('nvs'), eta: g('neta'),
+    cfs: g('ncfs'), cfsAmt: Number(g('namt'))||0, destination: g('ndest'),
+    assignedTo: g('nown')||currentUser, priority: g('npr'),
+    hsCode: g('nhs'), goods: g('ngd'), rms: g('nrms'), bgRequired: g('nbg'),
+    freeDays: Number(g('nfd'))||14, detentionRisk: g('ndem'),
+    stage: Number(g('nst')), delayReason: g('ndl'), notes: g('nnt'),
+    cfsStatus: 'pending', payStatus: 'pending',
+    updatedBy: currentUser, _isNew: true
+  };
+  await API.upsertJob(job);
+  showToast('Job ' + job.jobNo + ' added to Google Sheets! Jose can see it.');
+  clearForm();
+  showTab('myjobs', document.querySelectorAll('.tab')[0]);
+  await loadData();
+}
+
+function clearForm() {
+  ['nj','nc','nbl','nbe','ncn','nvs','neta','ncfs','namt','ndest','nown','nhs','ngd','ndl','nnt'].forEach(f=>{const e=document.getElementById(f);if(e)e.value='';});
+  ['ntype','nmode','npr','nrms','nbg','ndem'].forEach(f=>{const e=document.getElementById(f);if(e)e.selectedIndex=0;});
+  const es=document.getElementById('nst');if(es)es.value='0';
+  const ef=document.getElementById('nfd');if(ef)ef.value='14';
+}
+
+function pb(p){return p==='urgent'?'<span class="badge b-red">Urgent</span>':p==='high'?'<span class="badge b-amber">High</span>':'<span class="badge b-gray">Normal</span>';}
+function mb(m){return m==='Air'?'<span class="badge b-green">Air</span>':m==='BPT/MBPT'?'<span class="badge" style="background:#f3e8ff;color:#6b21a8">BPT</span>':m==='Sea LCL'?'<span class="badge" style="background:#ccfbf1;color:#0f766e">LCL</span>':'<span class="badge b-blue">FCL</span>';}
+</script>
+</body>
+</html>

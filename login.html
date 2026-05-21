@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JDS Logistics — Login</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+
+.card{background:#161b27;border:1px solid #2a3347;border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:400px}
+
+.logo{width:52px;height:52px;background:#3b82f6;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;color:#fff;margin:0 auto 1.25rem}
+h1{font-size:18px;font-weight:700;color:#e8edf5;text-align:center;margin-bottom:.3rem}
+.sub{font-size:12px;color:#5a6a85;text-align:center;margin-bottom:2rem}
+
+/* STEP 1 — EMAIL SELECT */
+.step{display:none}
+.step.active{display:block}
+
+.fg{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem}
+.fg label{font-size:11px;font-weight:700;color:#8a9ab5;text-transform:uppercase;letter-spacing:.05em}
+.fg select,.fg input{background:#1e2535;border:1px solid #2a3347;border-radius:8px;color:#e8edf5;font-size:14px;padding:11px 13px;width:100%;transition:border-color .15s}
+.fg select:focus,.fg input:focus{outline:none;border-color:#3b82f6}
+.fg select option{background:#1e2535}
+
+.btn{width:100%;height:44px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;margin-top:.5rem}
+.btn:hover{background:#1d4ed8}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* NAME PICKER */
+.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem}
+.name-btn{background:#1e2535;border:1px solid #2a3347;border-radius:8px;color:#8a9ab5;font-size:13px;font-weight:500;padding:12px 8px;cursor:pointer;text-align:center;transition:all .15s}
+.name-btn:hover{background:#252d3d;border-color:#3b82f6;color:#e8edf5}
+.name-btn.selected{background:#1e3a5f;border-color:#3b82f6;color:#3b82f6;font-weight:700}
+
+/* ROLE BADGE */
+.role-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:0 auto 1.5rem;width:fit-content}
+.role-pill.admin{background:#1e3a5f;color:#93c5fd}
+.role-pill.employee{background:#14532d;color:#86efac}
+
+/* BACK LINK */
+.back{font-size:12px;color:#5a6a85;text-align:center;margin-top:1rem;cursor:pointer}
+.back:hover{color:#8a9ab5}
+
+/* WHO AM I */
+.who-box{background:#1e2535;border:1px solid #2a3347;border-radius:8px;padding:.85rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+.who-avatar{width:32px;height:32px;border-radius:50%;background:#3b82f6;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0}
+.who-name{font-size:14px;font-weight:700;color:#e8edf5}
+.who-email{font-size:11px;color:#5a6a85}
+
+.divider{height:1px;background:#2a3347;margin:1rem 0}
+.hint{font-size:11px;color:#5a6a85;text-align:center;margin-top:.75rem;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">JD</div>
+  <h1>JDS Logistics</h1>
+  <p class="sub">Operations System · CBD Belapur, Navi Mumbai</p>
+
+  <!-- STEP 1: Select Email -->
+  <div class="step active" id="step1">
+    <div class="fg">
+      <label>Select your email</label>
+      <select id="email-sel" onchange="onEmailChange(this.value)">
+        <option value="">-- Select your account --</option>
+        <option value="jose">jose@jdshipping.com</option>
+        <option value="durgesh">durgesh@jdshipping.com</option>
+        <option value="mum">mum@jdshipping.com</option>
+        <option value="akshyani">docs@jdshipping.com</option>
+        <option value="updhy">ops@jdshipping.com</option>
+      </select>
+    </div>
+    <div id="role-display" style="display:none;text-align:center;margin-bottom:1rem"></div>
+    <button class="btn" id="next-btn" onclick="goStep2()" disabled>Continue</button>
+    <div class="hint">Select the email your company assigned to you</div>
+  </div>
+
+  <!-- STEP 2A: Admin confirmation (Jose / Durgesh) -->
+  <div class="step" id="step2-admin">
+    <div class="who-box" id="admin-who"></div>
+    <div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:1.25rem">
+      <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;display:inline-block"></span>
+      <span style="font-size:12px;color:#8a9ab5">Admin access · Full command center</span>
+    </div>
+    <button class="btn" onclick="loginAdmin()">Open Command Center</button>
+    <div class="back" onclick="goBack()">&#8592; Change account</div>
+  </div>
+
+  <!-- STEP 2B: Staff1 name picker (mum@jdshipping.com) -->
+  <div class="step" id="step2-staff">
+    <div style="font-size:12px;color:#8a9ab5;margin-bottom:.85rem;text-align:center">
+      Multiple people share this account.<br>Who are you today?
+    </div>
+    <div class="name-grid" id="name-grid">
+      <div class="name-btn" onclick="selectName('Kiran')">Kiran</div>
+      <div class="name-btn" onclick="selectName('Virendra')">Virendra (Vrn)</div>
+      <div class="name-btn" onclick="selectName('Trupti')">Trupti</div>
+      <div class="name-btn" onclick="selectName('Pramod')">Pramod</div>
+      <div class="name-btn" onclick="selectName('Samita')">Samita</div>
+      <div class="name-btn" onclick="selectName('Anil')">Anil</div>
+      <div class="name-btn" onclick="selectName('Mayur')">Mayur</div>
+    </div>
+    <button class="btn" id="staff-go" onclick="loginEmployee()" disabled>Open Employee Portal</button>
+    <div class="back" onclick="goBack()">&#8592; Change account</div>
+  </div>
+
+  <!-- STEP 2C: Solo employee (Akshyani / Updhy) -->
+  <div class="step" id="step2-solo">
+    <div class="who-box" id="solo-who"></div>
+    <div style="display:flex;align-items:center;gap:6px;justify-content:center;margin-bottom:1.25rem">
+      <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+      <span style="font-size:12px;color:#8a9ab5">Employee access · Operations portal</span>
+    </div>
+    <button class="btn" style="background:#16a34a" onclick="loginEmployee()">Open Employee Portal</button>
+    <div class="back" onclick="goBack()">&#8592; Change account</div>
+  </div>
+</div>
+
+<script>
+const ACCOUNTS = {
+  jose:     { name: 'Jose',     email: 'jose@jdshipping.com',     role: 'admin',    type: 'admin' },
+  durgesh:  { name: 'Durgesh',  email: 'durgesh@jdshipping.com',  role: 'admin',    type: 'admin' },
+  mum:      { name: 'Staff1',   email: 'mum@jdshipping.com',      role: 'employee', type: 'staff' },
+  akshyani: { name: 'Akshyani', email: 'docs@jdshipping.com',     role: 'employee', type: 'solo'  },
+  updhy:    { name: 'Uphadhya', email: 'ops@jdshipping.com',      role: 'employee', type: 'solo'  },
+};
+
+let selectedAccount = null;
+let selectedName = null;
+
+// Auto-login if already logged in
+window.onload = () => {
+  const saved = sessionStorage.getItem('jds_user');
+  if (saved) {
+    const u = JSON.parse(saved);
+    if (u.role === 'admin') window.location.href = 'jose.html';
+    else window.location.href = 'employee.html';
+  }
+};
+
+function onEmailChange(key) {
+  selectedAccount = ACCOUNTS[key] || null;
+  const btn = document.getElementById('next-btn');
+  const rd = document.getElementById('role-display');
+  if (!selectedAccount) { btn.disabled = true; rd.style.display = 'none'; return; }
+  btn.disabled = false;
+  rd.style.display = 'block';
+  rd.innerHTML = selectedAccount.role === 'admin'
+    ? '<span style="background:#1e3a5f;color:#93c5fd;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Admin — Full Command Center</span>'
+    : '<span style="background:#14532d;color:#86efac;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">Employee — Operations Portal</span>';
+}
+
+function goStep2() {
+  if (!selectedAccount) return;
+  document.getElementById('step1').classList.remove('active');
+  if (selectedAccount.type === 'admin') {
+    document.getElementById('admin-who').innerHTML = `
+      <div class="who-avatar">${selectedAccount.name[0]}</div>
+      <div><div class="who-name">${selectedAccount.name}</div><div class="who-email">${selectedAccount.email}</div></div>
+      <div style="margin-left:auto"><span style="background:#1e3a5f;color:#93c5fd;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">Admin</span></div>`;
+    document.getElementById('step2-admin').classList.add('active');
+  } else if (selectedAccount.type === 'staff') {
+    selectedName = null;
+    document.querySelectorAll('.name-btn').forEach(b => b.classList.remove('selected'));
+    document.getElementById('staff-go').disabled = true;
+    document.getElementById('step2-staff').classList.add('active');
+  } else {
+    document.getElementById('solo-who').innerHTML = `
+      <div class="who-avatar" style="background:#16a34a">${selectedAccount.name[0]}</div>
+      <div><div class="who-name">${selectedAccount.name}</div><div class="who-email">${selectedAccount.email}</div></div>
+      <div style="margin-left:auto"><span style="background:#14532d;color:#86efac;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px">Employee</span></div>`;
+    selectedName = selectedAccount.name;
+    document.getElementById('step2-solo').classList.add('active');
+  }
+}
+
+function selectName(name) {
+  selectedName = name;
+  document.querySelectorAll('.name-btn').forEach(b => {
+    b.classList.toggle('selected', b.textContent.startsWith(name));
+  });
+  document.getElementById('staff-go').disabled = false;
+}
+
+function goBack() {
+  ['step2-admin','step2-staff','step2-solo'].forEach(id => document.getElementById(id).classList.remove('active'));
+  document.getElementById('step1').classList.add('active');
+  selectedName = null;
+}
+
+function loginAdmin() {
+  sessionStorage.setItem('jds_user', JSON.stringify({ name: selectedAccount.name, email: selectedAccount.email, role: 'admin' }));
+  window.location.href = 'jose.html';
+}
+
+function loginEmployee() {
+  if (!selectedName) return;
+  sessionStorage.setItem('jds_user', JSON.stringify({ name: selectedName, email: selectedAccount.email, role: 'employee' }));
+  window.location.href = 'employee.html';
+}
+</script>
+</body>
+</html>
